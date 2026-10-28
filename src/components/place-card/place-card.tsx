@@ -3,14 +3,15 @@ import { Offer } from '../../types/offer';
 
 type PlaceCardProps = {
   offer: Offer;
+  cardType?: 'cities' | 'near-places';
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 };
 
-function PlaceCard({ offer, onMouseEnter, onMouseLeave }: PlaceCardProps): JSX.Element {
+function PlaceCard({ offer, cardType = 'cities', onMouseEnter, onMouseLeave }: PlaceCardProps): JSX.Element {
   return (
     <article
-      className="cities__card place-card"
+      className={`${cardType}__card place-card`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -19,7 +20,7 @@ function PlaceCard({ offer, onMouseEnter, onMouseLeave }: PlaceCardProps): JSX.E
           <span>Premium</span>
         </div>
       )}
-      <div className="cities__image-wrapper place-card__image-wrapper">=
+      <div className={`${cardType}__image-wrapper place-card__image-wrapper`}>
         <Link to={`/offer/${offer.id}`}>
           <img className="place-card__image" src={offer.previewImage} width="260" height="200" alt="Place image" />
         </Link>
@@ -38,7 +39,7 @@ function PlaceCard({ offer, onMouseEnter, onMouseLeave }: PlaceCardProps): JSX.E
           </button>
         </div>
         <div className="place-card__rating rating">
-          <div className="place-card__stars rating__stars">=
+          <div className="place-card__stars rating__stars">
             <span style={{ width: `${Math.round(offer.rating) * 20}%` }}></span>
             <span className="visually-hidden">Rating</span>
           </div>

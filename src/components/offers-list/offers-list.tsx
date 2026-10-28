@@ -3,18 +3,20 @@ import { Offer } from '../../types/offer';
 
 type OffersListProps = {
   offers: Offer[];
-  onListItemHover: (id: string | null) => void;
+  cardType?: 'cities' | 'near-places';
+  onListItemHover?: (id: string | null) => void;
 };
 
-function OffersList({ offers, onListItemHover }: OffersListProps): JSX.Element {
+function OffersList({ offers, cardType = 'cities', onListItemHover }: OffersListProps): JSX.Element {
   return (
     <>
       {offers.map((offer) => (
         <PlaceCard
           key={offer.id}
           offer={offer}
-          onMouseEnter={() => onListItemHover(offer.id)}
-          onMouseLeave={() => onListItemHover(null)}
+          cardType={cardType}
+          onMouseEnter={() => onListItemHover?.(offer.id)}
+          onMouseLeave={() => onListItemHover?.(null)}
         />
       ))}
     </>
