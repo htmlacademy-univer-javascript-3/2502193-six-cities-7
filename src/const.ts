@@ -28,6 +28,12 @@ export enum SortOption {
   TopRatedFirst = 'Top rated first',
 }
 
+export enum NameSpace {
+  Data = 'DATA',
+  App = 'APP',
+  User = 'USER',
+}
+
 export const CITIES: City[] = [
   {
     name: 'Paris',

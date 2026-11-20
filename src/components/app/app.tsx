@@ -8,11 +8,13 @@ import NotFoundPage from '../../pages/not-found-page/not-found-page';
 import PrivateRoute from '../private-route/private-route';
 import Spinner from '../spinner/spinner';
 import { useAppSelector } from '../../hooks';
+import { selectIsOffersDataLoading, selectOffers } from '../../store/offers-data/selectors';
+import { selectAuthorizationStatus } from '../../store/user-process/selectors';
 
 function App(): JSX.Element {
-  const offers = useAppSelector((state) => state.offers);
-  const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
-  const isOffersDataLoading = useAppSelector((state) => state.isOffersDataLoading);
+  const offers = useAppSelector(selectOffers);
+  const authorizationStatus = useAppSelector(selectAuthorizationStatus);
+  const isOffersDataLoading = useAppSelector(selectIsOffersDataLoading);
 
   if (authorizationStatus === AuthorizationStatus.Unknown || isOffersDataLoading) {
     return <Spinner />;

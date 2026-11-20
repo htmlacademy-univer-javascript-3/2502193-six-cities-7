@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { memo } from 'react';
 import { City } from '../../types/offer';
 
 type CitiesListProps = {
@@ -7,25 +7,29 @@ type CitiesListProps = {
   onCityChange: (city: City) => void;
 };
 
-function CitiesList({ cities, currentCity, onCityChange }: CitiesListProps): JSX.Element {
+function CitiesListComponent({ cities, currentCity, onCityChange }: CitiesListProps): JSX.Element {
   return (
     <ul className="locations__list tabs__list">
       {cities.map((city) => (
-        <li className="locations__item" key={city.name}>
-          <Link
-            className={`locations__item-link tabs__item ${city.name === currentCity.name ? 'tabs__item--active' : ''}`}
-            to="#"
+        <li key={city.name} className="locations__item">
+          <a
+            className={`locations__item-link tabs__item ${
+              city.name === currentCity.name ? 'tabs__item--active' : ''
+            }`}
+            href="#"
             onClick={(evt) => {
               evt.preventDefault();
               onCityChange(city);
             }}
           >
             <span>{city.name}</span>
-          </Link>
+          </a>
         </li>
       ))}
     </ul>
   );
 }
+
+const CitiesList = memo(CitiesListComponent);
 
 export default CitiesList;

@@ -1,29 +1,34 @@
-import { useEffect, MouseEvent } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { Navigate, useParams } from 'react-router-dom';
 import { AppRoute, AuthorizationStatus } from '../../const';
 import ReviewForm from '../../components/review-form/review-form';
 import ReviewsList from '../../components/reviews-list/reviews-list';
 import Map from '../../components/map/map';
 import OffersList from '../../components/offers-list/offers-list';
 import Spinner from '../../components/spinner/spinner';
+import Header from '../../components/header/header';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { fetchOfferAction, logoutAction } from '../../store/api-actions';
-import { setOfferNotFoundStatus } from '../../store/action';
+import { fetchOfferAction } from '../../store/api-actions';
+import { setOfferNotFoundStatus } from '../../store/offers-data/offers-data';
+import {
+  selectCurrentOffer,
+  selectIsCurrentOfferLoading,
+  selectIsOfferNotFound,
+  selectNearbyOffers,
+  selectReviews,
+} from '../../store/offers-data/selectors';
+import { selectAuthorizationStatus } from '../../store/user-process/selectors';
 
 function OfferPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
 
-  const currentOffer = useAppSelector((state) => state.currentOffer);
-  const nearbyOffers = useAppSelector((state) => state.nearbyOffers);
-  const reviews = useAppSelector((state) => state.reviews);
-  const isCurrentOfferLoading = useAppSelector((state) => state.isCurrentOfferLoading);
-  const isOfferNotFound = useAppSelector((state) => state.isOfferNotFound);
-  const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
-  const userData = useAppSelector((state) => state.userData);
-  const allOffers = useAppSelector((state) => state.offers);
-
-  const favoriteOffersCount = allOffers.filter((offer) => offer.isFavorite).length;
+  const currentOffer = useAppSelector(selectCurrentOffer);
+  const nearbyOffers = useAppSelector(selectNearbyOffers);
+  const reviews = useAppSelector(selectReviews);
+  const isCurrentOfferLoading = useAppSelector(selectIsCurrentOfferLoading);
+  const isOfferNotFound = useAppSelector(selectIsOfferNotFound);
+  const authorizationStatus = useAppSelector(selectAuthorizationStatus);
 
   useEffect(() => {
     if (id) {
@@ -35,10 +40,15 @@ function OfferPage(): JSX.Element {
     };
   }, [id, dispatch]);
 
-  const handleSignOutClick = (evt: MouseEvent<HTMLAnchorElement>) => {
-    evt.preventDefault();
-    dispatch(logoutAction());
-  };
+  const displayedNearbyOffers = useMemo(
+    () => nearbyOffers.slice(0, 3),
+    [nearbyOffers]
+  );
+
+  const mapOffers = useMemo(
+    () => (currentOffer ? [...displayedNearbyOffers, currentOffer] : displayedNearbyOffers),
+    [displayedNearbyOffers, currentOffer]
+  );
 
   if (isOfferNotFound) {
     return <Navigate to={AppRoute.NotFound} />;
@@ -48,52 +58,11 @@ function OfferPage(): JSX.Element {
     return <Spinner />;
   }
 
-  const displayedNearbyOffers = nearbyOffers.slice(0, 3);
-  const mapOffers = [...displayedNearbyOffers, currentOffer];
   const ratingWidth = `${Math.round(currentOffer.rating) * 20}%`;
 
   return (
     <div className="page">
-      <header className="header">
-        <div className="container">
-          <div className="header__wrapper">
-            <div className="header__left">
-              <Link className="header__logo-link" to={AppRoute.Main}>
-                <img className="header__logo" src="img/logo.svg" alt="6 cities logo" width="81" height="41" />
-              </Link>
-            </div>
-            <nav className="header__nav">
-              <ul className="header__nav-list">
-                {authorizationStatus === AuthorizationStatus.Auth ? (
-                  <>
-                    <li className="header__nav-item user">
-                      <Link className="header__nav-link header__nav-link--profile" to={AppRoute.Favorites}>
-                        <div className="header__avatar-wrapper user__avatar-wrapper">
-                        </div>
-                        <span className="header__user-name user__name">{userData?.email}</span>
-                        <span className="header__favorite-count">{favoriteOffersCount}</span>
-                      </Link>
-                    </li>
-                    <li className="header__nav-item">
-                      <Link className="header__nav-link" to={AppRoute.Main} onClick={handleSignOutClick}>
-                        <span className="header__signout">Sign out</span>
-                      </Link>
-                    </li>
-                  </>
-                ) : (
-                  <li className="header__nav-item user">
-                    <Link className="header__nav-link header__nav-link--profile" to={AppRoute.Login}>
-                      <div className="header__avatar-wrapper user__avatar-wrapper">
-                      </div>
-                      <span className="header__login">Sign in</span>
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="page__main page__main--offer">
         <section className="offer">
