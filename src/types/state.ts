@@ -15,6 +15,7 @@ export type AppProcess = {
 
 export type OffersData = {
   offers: Offer[];
+  favoriteOffers: Offer[];
   isOffersDataLoading: boolean;
   currentOffer: FullOffer | null;
   nearbyOffers: Offer[];

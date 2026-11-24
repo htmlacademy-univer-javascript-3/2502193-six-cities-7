@@ -1,5 +1,9 @@
 import { memo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { AppRoute, AuthorizationStatus } from '../../const';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { changeFavoriteStatusAction } from '../../store/api-actions';
+import { selectAuthorizationStatus } from '../../store/user-process/selectors';
 import { Offer } from '../../types/offer';
 
 type PlaceCardProps = {
@@ -18,6 +22,24 @@ function PlaceCardComponent({
   const { id, title, type, price, isFavorite, isPremium, rating, previewImage } = offer;
   const ratingWidth = `${Math.round(rating) * 20}%`;
   const isFavorites = cardType === 'favorites';
+
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const authorizationStatus = useAppSelector(selectAuthorizationStatus);
+
+  const handleBookmarkClick = () => {
+    if (authorizationStatus !== AuthorizationStatus.Auth) {
+      navigate(AppRoute.Login);
+      return;
+    }
+
+    dispatch(
+      changeFavoriteStatusAction({
+        offerId: id,
+        status: isFavorite ? 0 : 1,
+      })
+    );
+  };
 
   return (
     <article
@@ -52,6 +74,7 @@ function PlaceCardComponent({
               isFavorite ? 'place-card__bookmark-button--active ' : ''
             }button`}
             type="button"
+            onClick={handleBookmarkClick}
           >
             <svg className="place-card__bookmark-icon" width="18" height="19">
               <use xlinkHref="#icon-bookmark"></use>

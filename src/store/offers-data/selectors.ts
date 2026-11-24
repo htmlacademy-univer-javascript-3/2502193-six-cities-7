@@ -7,6 +7,9 @@ import { selectCurrentCity } from '../app-process/selectors';
 
 export const selectOffers = (state: State): Offer[] => state[NameSpace.Data].offers;
 
+export const selectFavoriteOffers = (state: State): Offer[] =>
+  state[NameSpace.Data].favoriteOffers;
+
 export const selectIsOffersDataLoading = (state: State): boolean =>
   state[NameSpace.Data].isOffersDataLoading;
 
@@ -28,11 +31,6 @@ export const selectIsOfferNotFound = (state: State): boolean =>
 export const selectCurrentCityOffers = createSelector(
   [selectOffers, selectCurrentCity],
   (offers, currentCity) => offers.filter((offer) => offer.city.name === currentCity.name)
-);
-
-export const selectFavoriteOffers = createSelector(
-  [selectOffers],
-  (offers) => offers.filter((offer) => offer.isFavorite)
 );
 
 export const selectSortedReviews = createSelector(

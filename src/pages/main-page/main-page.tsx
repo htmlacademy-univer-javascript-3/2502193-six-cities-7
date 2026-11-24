@@ -5,6 +5,7 @@ import Map from '../../components/map/map';
 import CitiesList from '../../components/cities-list/cities-list';
 import SortingOptions from '../../components/sorting-options/sorting-options';
 import Header from '../../components/header/header';
+import MainEmpty from '../../components/main-empty/main-empty';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { changeCity } from '../../store/app-process/app-process';
 import { selectCurrentCity } from '../../store/app-process/selectors';
@@ -18,6 +19,8 @@ function MainPage(): JSX.Element {
   const dispatch = useAppDispatch();
   const currentCity = useAppSelector(selectCurrentCity);
   const currentOffers = useAppSelector(selectCurrentCityOffers);
+
+  const isEmpty = currentOffers.length === 0;
 
   const sortedOffers = useMemo(
     () =>
@@ -55,7 +58,7 @@ function MainPage(): JSX.Element {
     <div className="page page--gray page--main">
       <Header isMainPage />
 
-      <main className="page__main page__main--index">
+      <main className={`page__main page__main--index ${isEmpty ? 'page__main--index-empty' : ''}`}>
         <h1 className="visually-hidden">Cities</h1>
         <div className="tabs">
           <section className="locations container">
@@ -67,28 +70,34 @@ function MainPage(): JSX.Element {
           </section>
         </div>
         <div className="cities">
-          <div className="cities__places-container container">
-            <section className="cities__places places">
-              <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">{currentOffers.length} places to stay in {currentCity.name}</b>
-              <SortingOptions
-                currentSort={currentSort}
-                onSortChange={handleSortChange}
-              />
-              <OffersList
-                offers={sortedOffers}
-                onListItemHover={handleListItemHover}
-              />
-            </section>
-            <div className="cities__right-section">
-              <Map
-                city={currentCity}
-                offers={currentOffers}
-                selectedPoint={activeOfferId}
-                className="cities__map"
-              />
+          {isEmpty ? (
+            <MainEmpty cityName={currentCity.name} />
+          ) : (
+            <div className="cities__places-container container">
+              <section className="cities__places places">
+                <h2 className="visually-hidden">Places</h2>
+                <b className="places__found">
+                  {currentOffers.length} {currentOffers.length === 1 ? 'place' : 'places'} to stay in {currentCity.name}
+                </b>
+                <SortingOptions
+                  currentSort={currentSort}
+                  onSortChange={handleSortChange}
+                />
+                <OffersList
+                  offers={sortedOffers}
+                  onListItemHover={handleListItemHover}
+                />
+              </section>
+              <div className="cities__right-section">
+                <Map
+                  city={currentCity}
+                  offers={currentOffers}
+                  selectedPoint={activeOfferId}
+                  className="cities__map"
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
     </div>

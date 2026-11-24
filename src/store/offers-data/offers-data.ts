@@ -1,10 +1,18 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { NameSpace } from '../../const';
 import { OffersData } from '../../types/state';
-import { fetchOfferAction, fetchOffersAction, postCommentAction } from '../api-actions';
+import {
+  changeFavoriteStatusAction,
+  fetchFavoritesAction,
+  fetchOfferAction,
+  fetchOffersAction,
+  logoutAction,
+  postCommentAction,
+} from '../api-actions';
 
 const initialState: OffersData = {
   offers: [],
+  favoriteOffers: [],
   isOffersDataLoading: false,
   currentOffer: null,
   nearbyOffers: [],
@@ -32,6 +40,43 @@ export const offersData = createSlice({
       })
       .addCase(fetchOffersAction.rejected, (state) => {
         state.isOffersDataLoading = false;
+      })
+      .addCase(fetchFavoritesAction.fulfilled, (state, action) => {
+        state.favoriteOffers = action.payload;
+      })
+      .addCase(changeFavoriteStatusAction.fulfilled, (state, action) => {
+        const updatedOffer = action.payload;
+
+        const offerIndex = state.offers.findIndex((offer) => offer.id === updatedOffer.id);
+        if (offerIndex !== -1) {
+          state.offers[offerIndex].isFavorite = updatedOffer.isFavorite;
+        }
+
+        const nearbyIndex = state.nearbyOffers.findIndex((offer) => offer.id === updatedOffer.id);
+        if (nearbyIndex !== -1) {
+          state.nearbyOffers[nearbyIndex].isFavorite = updatedOffer.isFavorite;
+        }
+
+        if (state.currentOffer && state.currentOffer.id === updatedOffer.id) {
+          state.currentOffer.isFavorite = updatedOffer.isFavorite;
+        }
+
+        if (updatedOffer.isFavorite) {
+          state.favoriteOffers.push(updatedOffer);
+        } else {
+          state.favoriteOffers = state.favoriteOffers.filter(
+            (offer) => offer.id !== updatedOffer.id
+          );
+        }
+      })
+      .addCase(logoutAction.fulfilled, (state) => {
+        state.favoriteOffers = [];
+        if (state.currentOffer) {
+          state.currentOffer.isFavorite = false;
+        }
+        state.nearbyOffers.forEach((offer) => {
+          offer.isFavorite = false;
+        });
       })
       .addCase(fetchOfferAction.pending, (state) => {
         state.isCurrentOfferLoading = true;
